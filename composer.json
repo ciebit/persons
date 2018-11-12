@@ -1,0 +1,29 @@
+{
+    "name": "ciebit/persons",
+    "description": "Representação de pessoas físicas e jurídicas",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maike",
+            "email": "maike_jbe@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ciebit\\Persons\\": "sources/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ciebit\\Persons\\Tests\\": "tests/classes/"
+        }
+    },
+    "require": {
+        "myclabs/php-enum": "^1.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7",
+        "phpunit/dbunit": "^4.0.0"
+    }
+}

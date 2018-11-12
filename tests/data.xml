@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<dataset>
+    <table name="cb_persons">
+        <column>id</column>
+        <column>name</column>
+        <column>fantasy_name</column>
+        <column>birthdate</column>
+        <column>foundation_date</column>
+        <column>type</column>
+        <column>status</column>
+        <row>
+            <value>1</value>
+            <value>João S. Diógenes LTDA</value>
+            <value>Moda Íntima e CIA</value>
+            <null/>
+            <value>1995-05-17</value>
+            <value>legal</value>
+            <value>3</value>             
+        </row>
+        <row>
+            <value>2</value>
+            <value>A. D. Sousa</value>
+            <value>Açaí Berry</value>
+            <null/>
+            <value>2009-10-02</value>
+            <value>legal</value>
+            <value>4</value>    
+        </row>
+        <row>
+            <value>3</value>
+            <value>C. A. Ferreira</value>
+            <value>Mundo Fitness</value>
+            <null/>
+            <value>2017-04-15</value>
+            <value>legal</value>
+            <value>5</value>    
+        </row>
+        <row>
+            <value>4</value>
+            <value>João Silva Diógenes</value>
+            <null/>
+            <value>1972-05-20</value>
+            <null/>
+            <value>natural</value>
+            <value>3</value>             
+        </row>
+        <row>
+            <value>5</value>
+            <value>Angela Duarte Sousa</value>
+            <null/>
+            <value>1986-12-05</value>
+            <null/>
+            <value>natural</value>
+            <value>4</value>             
+        </row>
+        <row>
+            <value>6</value>
+            <value>Caio Amorim Ferreira</value>
+            <null/>
+            <value>1990-04-15</value>
+            <null/>
+            <value>natural</value>
+            <value>5</value>             
+        </row>
+    </table>
+</dataset>

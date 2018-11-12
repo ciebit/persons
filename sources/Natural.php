@@ -13,6 +13,7 @@ class Natural extends Person
     private $gender; #Gender
     private $maritalStatus; #MaritalStatus
     private $nickname; #string
+    private const TYPE = 'natural';
 
     public function getBirthDate(): DateTime
     {
@@ -37,6 +38,11 @@ class Natural extends Person
     public function getNickname(): string
     {
         return $this->nickname;
+    }
+
+    public function getType(): string
+    {
+        return self::TYPE;
     }
 
     public function setBirthDate(DateTime $birthDate): self

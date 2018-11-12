@@ -7,6 +7,7 @@ class Legal extends Person
 {
     private $fantasyName; #string
     private $foundationDate; #DateTime
+    private const TYPE = 'legal';
 
     public function getFantasyName(): string
     {
@@ -16,6 +17,11 @@ class Legal extends Person
     public function getFoundationDate(): DateTime
     {
         return $this->foundationDate;
+    }
+
+    public function getType(): string
+    {
+        return self::TYPE;
     }
 
     public function setFantasyName(string $name): self

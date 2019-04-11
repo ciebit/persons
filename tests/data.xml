@@ -1,0 +1,101 @@
+<?xml version="1.0" ?>
+<dataset>
+    <table name="cb_persons">
+        <column>id</column>
+        <column>image_id</column>
+        <column>name</column>
+        <column>nickname</column>
+        <column>description</column>
+        <column>birth_date</column>
+        <column>type</column>
+        <column>educational_level</column>
+        <column>gender</column>
+        <column>marital_status</column>
+        <column>slug</column>
+        <column>status</column>
+        <row>
+            <value>1</value>
+            <null/>
+            <value>João S. Diógenes LTDA</value>
+            <value>Moda Íntima e CIA</value>
+            <null/>
+            <null/>
+            <value>legal</value>
+            <value>0</value>
+            <value>0</value>
+            <value>0</value>
+            <value>mota-intima-e-cia</value>
+            <value>3</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>22</value>
+            <value>A. D. Sousa</value>
+            <value>Açaí Berry</value>
+            <null/>
+            <value>2009-10-02</value>
+            <value>legal</value>
+            <value>0</value>
+            <value>0</value>
+            <value>0</value>
+            <value>acai-berry</value>
+            <value>4</value>
+        </row>
+        <row>
+            <value>3</value>
+            <value>33</value>
+            <value>C. A. Ferreira</value>
+            <value>Mundo Fitness</value>
+            <value>Empresa focada em produtos de fitness</value>
+            <value>2017-04-15</value>
+            <value>legal</value>
+            <value>0</value>
+            <value>0</value>
+            <value>0</value>
+            <value>mundo-fitness</value>
+            <value>5</value>
+        </row>
+        <row>
+            <value>4</value>
+            <null/>
+            <value>João Silva Diógenes</value>
+            <null/>
+            <null/>
+            <value>1972-05-20</value>
+            <value>natural</value>
+            <value>3</value>
+            <value>2</value>
+            <value>4</value>
+            <value>joao-silva-diogenes</value>
+            <value>3</value>
+        </row>
+        <row>
+            <value>5</value>
+            <value>55</value>
+            <value>Angela Duarte Sousa</value>
+            <value>Angel</value>
+            <value>Atendente</value>
+            <value>1986-12-05</value>
+            <value>natural</value>
+            <value>4</value>
+            <value>2</value>
+            <value>1</value>
+            <value>angela-duarte-sousa</value>
+            <value>4</value>
+        </row>
+        <row>
+            <value>6</value>
+            <value>66</value>
+            <value>Caio Amorim Ferreira</value>
+            <null/>
+            <value>Programador</value>
+            <value>1990-04-15</value>
+            <value>natural</value>
+            <value>5</value>
+            <value>1</value>
+            <value>2</value>
+            <value>caio-amorim-ferreira</value>
+            <value>5</value>
+        </row>
+    </table>
+</dataset>

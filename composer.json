@@ -5,8 +5,16 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Maike",
-            "email": "maike_jbe@hotmail.com"
+            "name": "Johnny Saymon",
+            "email": "saymon@ciebit.com",
+            "homepage": "http://saymon.ciebit.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Maike Negreiros",
+            "email": "maike_jbe@hotmail.com",
+            "homepage": "http://maikenegreiros.me",
+            "role": "Developer"
         }
     ],
     "autoload": {
@@ -20,6 +28,7 @@
         }
     },
     "require": {
+        "ciebit/sql-helper": "^1.0.0",
         "myclabs/php-enum": "^1.6"
     },
     "require-dev": {

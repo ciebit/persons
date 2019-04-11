@@ -3,29 +3,68 @@ namespace Ciebit\Persons\Storages;
 
 use Ciebit\Persons\Collection;
 use Ciebit\Persons\Person;
-use Ciebit\Persons\Enum\Status;
+use Ciebit\Persons\Status;
 
 interface Storage
 {
-    public function addFilterById(int $id, string $operator = '='): self;
-    
-    public function addFilterByName(string $username, string $operator = '='): self;
-    
-    public function addFilterByStatus(Status $status, string $operator = '='): self;
-    
-    public function get(): ?Person;
-    
-    public function getAll(): Collection;
-    
-    public function store(Person $user): self;
-    
-    public function update(Person $user): self;
-    
-    public function save(Person $user): self;
-    
-    public function destroy(Person $user): self;
-    
-    public function setStartingLine(int $lineInit): self;
-    
-    public function setTotalLines(int $total): self;
+    /** @var string */
+    public const FIELD_BIRTH_DATE = 'birth_date';
+
+    /** @var string */
+    public const FIELD_DESCRIPTION = 'description';
+
+    /** @var string */
+    public const FIELD_EDUCATIONAL_LEVEL = 'educational_level';
+
+    /** @var string */
+    public const FIELD_FANTASY_NAME = 'nickname';
+
+    /** @var string */
+    public const FIELD_FOUNDATION_DATE = 'birth_date';
+
+    /** @var string */
+    public const FIELD_GENDER = 'gender';
+
+    /** @var string */
+    public const FIELD_ID = 'id';
+
+    /** @var string */
+    public const FIELD_MARITAL_STATUS = 'marital_status';
+
+    /** @var string */
+    public const FIELD_NAME = 'name';
+
+    /** @var string */
+    public const FIELD_NICKNAME = 'nickname';
+
+    /** @var string */
+    public const FIELD_SLUG = 'slug';
+
+    /** @var string */
+    public const FIELD_STATUS = 'status';
+
+    /** @var string */
+    public const FIELD_TYPE = 'type';
+
+    public function addFilterById(string $operator, string ...$id): self;
+
+    public function addFilterByName(string $operator, string ...$name): self;
+
+    public function addFilterBySlug(string $operator, string ...$slug): self;
+
+    public function addFilterByStatus(string $operator, Status ...$status): self;
+
+    public function addFilterByType(string $operator, string ...$type): self;
+
+    public function addOrderBy(string $field, string $direction): self;
+
+    public function getTotalItemsOfLastFindWithoutLimitations(): int;
+
+    public function findAll(): Collection;
+
+    public function findOne(): ?Person;
+
+    public function setLimit(int $limit): self;
+
+    public function setOffset(int $offset): self;
 }

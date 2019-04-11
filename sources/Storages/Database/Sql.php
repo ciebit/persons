@@ -1,16 +1,17 @@
 <?php
-declare(strict_types=1);
 namespace Ciebit\Persons\Storages\Database;
 
 use Ciebit\Persons\Person;
 use Ciebit\Persons\Legal;
 use Ciebit\Persons\Natural;
 use Ciebit\Persons\Collection;
-use Ciebit\Persons\Enum\Status;
+use Ciebit\Persons\Status;
 use Ciebit\Persons\Storages\Storage;
-use Exception;
+use Ciebit\SqlHelper\Sql as SqlHelper;
 use DateTime;
+use Exception;
 use PDO;
+
 use function array_column;
 use function array_filter;
 use function array_map;
@@ -21,88 +22,257 @@ use function explode;
 use function is_aray;
 use function intval;
 
-class Sql extends SqlFilters implements Database
+class Sql implements Database
 {
+    /** @var string */
+    private const COLUMN_BIRTH_DATE = 'birth_date';
+
+    /** @var string */
+    private const COLUMN_DESCRIPTION = 'description';
+
+    /** @var string */
+    private const COLUMN_EDUCATIONAL_LEVEL = 'educational_level';
+
+    /** @var string */
+    private const COLUMN_FANTASY_NAME = 'nickname';
+
+    /** @var string */
+    private const COLUMN_FOUNDATION_DATE = 'birth_date';
+
+    /** @var string */
+    private const COLUMN_GENDER = 'gender';
+
+    /** @var string */
+    private const COLUMN_ID = 'id';
+
+    /** @var string */
+    private const COLUMN_MARITAL_STATUS = 'marital_status';
+
+    /** @var string */
+    private const COLUMN_NAME = 'name';
+
+    /** @var string */
+    private const COLUMN_NICKNAME = 'nickname';
+
+    /** @var string */
+    private const COLUMN_SLUG = 'slug';
+
+    /** @var string */
+    private const COLUMN_STATUS = 'status';
+
+    /** @var string */
+    private const COLUMN_TYPE = 'type';
+
     static private $counterKey = 0;
-    private $pdo; #PDO
-    private $table; #string
-    
+
+    /** @var PDO */
+    private $pdo;
+
+    /** @var SqlHelper */
+    private $sqlHelper;
+
+    /** @var string */
+    private $table;
+
+    /** @var string */
+    private $tableLabelAssociation;
+
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->sqlHelper = new SqlHelper;
         $this->table = 'cb_persons';
+        $this->totalItemsOfLastFindWithoutLimitations = 0;
     }
-    
-    public function addFilterById(int $id, string $operator = '='): Storage
+
+    public function __clone()
     {
-        $key = 'id';
-        $sql = "`persons`.`id` $operator :{$key}";
-        $this->addfilter($key, $sql, PDO::PARAM_STR, $id);
-        return $this;
+        $this->sqlHelper = clone $this->sqlHelper;
     }
-    
-    public function addFilterByIds(string $operator, int ...$ids): Storage
+
+    private function addFilter(string $fieldName, int $type, string $operator, ...$value): self
     {
-         $keyPrefix = 'id';
-         $keys = [];
-         $operator = $operator == '!=' ? 'NOT IN' : 'IN';
-         foreach ($ids as $id) {
-             $key = $keyPrefix . self::$counterKey++;
-             $this->addBind($key, PDO::PARAM_STR, $id);
-             $keys[] = $key;
-         }
-         $keysStr = implode(', :', $keys);
-         $this->addSqlFilter("`persons`.`id` {$operator} (:{$keysStr})");
-         return $this;
-    }
-    
-    public function addFilterByName(string $name, string $operator = '='): Storage
-    {
-        $key = 'name';
-        $sql = "`persons`.`name` $operator :{$key}";
-        $this->addfilter($key, $sql, PDO::PARAM_STR, $name);
+        $field = "`{$this->table}`.`{$fieldName}`";
+        $this->sqlHelper->addFilterBy($field, $type, $operator, ...$value);
         return $this;
     }
 
-    public function addFilterByPersonType(string $type, string $operator = '='): Storage
+    public function addFilterById(string $operator, string ...$ids): Storage
     {
-        $key = 'type';
-        $sql = "`persons`.`type` $operator :{$key}";
-        $this->addfilter($key, $sql, PDO::PARAM_STR, $type);
+        $ids = array_map('intval', $ids);
+        $this->addFilter(self::COLUMN_ID, PDO::PARAM_INT, $operator, ...$ids);
         return $this;
     }
-    
-    public function addFilterByStatus(Status $status, string $operator = '='): Storage
+
+    public function addFilterByName(string $operator, string ...$name): Storage
     {
-        $key = 'status';
-        $sql = "`persons`.`status` {$operator} :{$key}";
-        $this->addFilter($key, $sql, PDO::PARAM_INT, $status->getValue());
+        $this->addFilter(self::COLUMN_NAME, PDO::PARAM_STR, $operator, ...$name);
         return $this;
     }
-    
-    public function get(): ?Person
+
+    public function addFilterBySlug(string $operator, string ...$slug): Storage
+    {
+        $this->addFilter(self::COLUMN_SLUG, PDO::PARAM_STR, $operator, ...$slug);
+        return $this;
+    }
+
+    public function addFilterByStatus(string $operator, Status ...$status): Storage
+    {
+        $statusInt = array_map(function($status){
+            return (int) $status->getValue();
+        }, $status);
+        $this->addFilter(self::COLUMN_STATUS, PDO::PARAM_INT, $operator, ...$statusInt);
+        return $this;
+    }
+
+    public function addFilterByType(string $operator, string ...$type): Storage
+    {
+        $this->addFilter(self::COLUMN_TYPE, PDO::PARAM_STR, $operator, ...$type);
+        return $this;
+    }
+
+    public function addOrderBy(string $field, string $direction): Storage
+    {
+        $this->sqlHelper->addOrderBy($field, $direction);
+        return $this;
+    }
+
+    public function createPerson(array $data): Person
+    {
+        if($data['type'] == 'legal') {
+            $person = (new Legal(
+                $data['name'] ?? '',
+                $data['slug'] ?? '',
+                new Status((int) $data['status'] ?? Status::INACTIVE)
+            ))
+            ->setId($data['id'] ?? '')
+            ->setFantasyName($data['nickname'] ?? '');
+            $data['birth_date'] && $person->setFoundationDate(new DateTime($data['birth_date']));
+
+            return $person;
+        }
+        $person = (new Natural(
+            $data['name'] ?? '',
+            $data['slug'] ?? '',
+            new Status((int) $data['status'] ?? Status::INACTIVE)
+        ))
+        ->setId($data['id'] ?? '');
+        $data['birth_date'] && $person->setBirthDate(new DateTime($data['birth_date']));
+
+        return $person;
+    }
+
+    private function destroy(Person $person): Storage
     {
         $statement = $this->pdo->prepare("
-            SELECT
-            {$this->getFields()}
-            FROM {$this->table} as `persons`
-            {$this->generateSqlJoin()}
-            WHERE {$this->generateSqlFilters()}
-            {$this->generateOrder()}
-            LIMIT 1
+            DELETE FROM {$this->table} WHERE `id` = :id;
         ");
-        $this->bind($statement);
+        $statement->bindValue(':id', (int) $person->getId(), PDO::PARAM_INT);
+        $statement->execute();
+        return $this;
+    }
+
+    /** @throws Exception */
+    public function findAll(): Collection
+    {
+        $statement = $this->pdo->prepare("
+            SELECT SQL_CALC_FOUND_ROWS
+            {$this->getFields()}
+            FROM {$this->table}
+            {$this->sqlHelper->generateSqlJoin()}
+            WHERE {$this->sqlHelper->generateSqlFilters()}
+            {$this->sqlHelper->generateSqlOrder()}
+            {$this->sqlHelper->generateSqlLimit()}
+        ");
+
+        $this->sqlHelper->bind($statement);
         if ($statement->execute() === false) {
             throw new Exception('ciebit.persons.storages.database.get_error', 2);
         }
-        $personsData = $statement->fetch(PDO::FETCH_ASSOC);
-        if ($personsData == false) {
+
+        $this->updateTotalItemsWithoutFilters();
+
+        $collection = new Collection;
+        $personsData = $statement->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($personsData as $personData) {
+            $person = $this->createPerson($personData);
+            $collection->add($person);
+        }
+
+        return $collection;
+    }
+
+    public function findOne(): ?Person
+    {
+        $storage = clone $this;
+        $personCollection = $storage->setLimit(1)->findAll();
+
+        if (count($personCollection) == 0) {
             return null;
         }
-        return $this->createPerson($personsData);
+
+        return $personCollection->getArrayObject()->offsetGet(0);
     }
-    
-    public function store(Person $person): Storage
+
+    private function getFields(): string
+    {
+        return "
+            `{$this->table}`.`". self::COLUMN_ID ."`,
+            `{$this->table}`.`". self::COLUMN_BIRTH_DATE ."`,
+            `{$this->table}`.`". self::COLUMN_DESCRIPTION ."`,
+            `{$this->table}`.`". self::COLUMN_EDUCATIONAL_LEVEL ."`,
+            `{$this->table}`.`". self::COLUMN_FANTASY_NAME ."`,
+            `{$this->table}`.`". self::COLUMN_FOUNDATION_DATE ."`,
+            `{$this->table}`.`". self::COLUMN_GENDER ."`,
+            `{$this->table}`.`". self::COLUMN_ID ."`,
+            `{$this->table}`.`". self::COLUMN_MARITAL_STATUS ."`,
+            `{$this->table}`.`". self::COLUMN_NAME ."`,
+            `{$this->table}`.`". self::COLUMN_NICKNAME ."`,
+            `{$this->table}`.`". self::COLUMN_SLUG ."`,
+            `{$this->table}`.`". self::COLUMN_STATUS ."`,
+            `{$this->table}`.`". self::COLUMN_TYPE ."`
+        ";
+    }
+
+    public function getTotalItemsOfLastFindWithoutLimitations(): int
+    {
+        return $this->totalItemsLastQuery;
+    }
+
+    private function save(Person $person): Storage
+    {
+        $statement = $this->pdo->prepare("
+            SELECT * FROM {$this->table} WHERE id = :id;
+        ");
+        $statement->bindValue(':id', (int) $person->getId(), PDO::PARAM_INT);
+
+        $execute = $statement->execute();
+        $data = $statement->fetch(PDO::FETCH_ASSOC);
+        !$data ?
+        $this->store($person) :
+        $this->update($person);
+        return $this;
+    }
+
+    public function setLimit(int $limit): Storage
+    {
+        $this->sqlHelper->setLimit($limit);
+        return $this;
+    }
+
+    public function setOffset(int $offset): Storage
+    {
+        $this->sqlHelper->setOffset($offset);
+        return $this;
+    }
+
+    public function setTable(string $name): Database
+    {
+        $this->table = $name;
+        return $this;
+    }
+
+    private function store(Person $person): Storage
     {
         if ($person instanceof Natural) {
             $statement = $this->pdo->prepare("
@@ -122,18 +292,18 @@ class Sql extends SqlFilters implements Database
         $statement->bindValue(':name', $person->getName(), PDO::PARAM_STR);
         $statement->bindValue(':status', $person->getStatus()->getValue(), PDO::PARAM_INT);
         $statement->bindValue(':type', $person->getType(), PDO::PARAM_STR);
-        
+
         $statement->execute();
-        
+
         return $this;
     }
-    
-    public function update(Person $person): Storage
+
+    private function update(Person $person): Storage
     {
         if ($person instanceof Natural) {
             $statement = $this->pdo->prepare("
                 UPDATE {$this->table}
-                SET 
+                SET
                 name = :name,
                 birthdate = :birthdate,
                 type = :type,
@@ -144,7 +314,7 @@ class Sql extends SqlFilters implements Database
         } else {
             $statement = $this->pdo->prepare("
                 UPDATE {$this->table}
-                SET 
+                SET
                 name = :name,
                 fantasy_name = :fantasy_name,
                 foundation_date = :foundation_date,
@@ -155,121 +325,20 @@ class Sql extends SqlFilters implements Database
             $statement->bindValue(':fantasy_name', $person->getFantasyName(), PDO::PARAM_STR);
             $statement->bindValue(':foundation_date', $person->getFoundationDate()->format('Y-m-d'), PDO::PARAM_STR);
         }
-        
+
         $statement->bindValue(':id', (int) $person->getId(), PDO::PARAM_INT);
         $statement->bindValue(':name', $person->getName(), PDO::PARAM_STR);
         $statement->bindValue(':type', $person->getType(), PDO::PARAM_STR);
         $statement->bindValue(':status', $person->getStatus()->getValue(), PDO::PARAM_INT);
-        
-        $statement->execute();
-        
-        return $this;
-    }
-    
-    public function save(Person $person): Storage
-    {
-        $statement = $this->pdo->prepare("
-            SELECT * FROM {$this->table} WHERE id = :id;
-        ");
-        $statement->bindValue(':id', (int) $person->getId(), PDO::PARAM_INT);
-        
-        $execute = $statement->execute();
-        $data = $statement->fetch(PDO::FETCH_ASSOC);
-        !$data ?
-        $this->store($person) :
-        $this->update($person);
-        return $this;
-    }
-    
-    public function destroy(Person $person): Storage
-    {
-        $statement = $this->pdo->prepare("
-            DELETE FROM {$this->table} WHERE `id` = :id;
-        ");
-        $statement->bindValue(':id', (int) $person->getId(), PDO::PARAM_INT);
-        $statement->execute();
-        return $this;
-    }
-    
-    public function createPerson(array $data): Person
-    {
-        if($data['type'] == 'legal') {
-            $person = (new Legal(
-                $data['name'] ?? '',
-                new Status((int) $data['status'] ?? Status::INACTIVE)
-            ))
-            ->setId($data['id'] ?? '')
-            ->setFantasyName($data['fantasy_name'] ?? '');
-            $data['foundation_date'] && $person->setFoundationDate(new DateTime($data['foundation_date']));
 
-            return $person;
-        }
-        $person = (new Natural(
-            $data['name'] ?? '',
-            new Status((int) $data['status'] ?? Status::INACTIVE)
-        ))
-        ->setId($data['id'] ?? '');
-        $data['birthdate'] && $person->setBirthDate(new DateTime($data['birthdate']));
+        $statement->execute();
 
-        return $person;
-    }
-    
-    public function getAll(): Collection
-    {
-        $statement = $this->pdo->prepare("
-            SELECT SQL_CALC_FOUND_ROWS
-            {$this->getFields()}
-            FROM {$this->table} as `persons`
-            {$this->generateSqlJoin()}
-            WHERE {$this->generateSqlFilters()}
-            {$this->generateOrder()}
-            {$this->generateSqlLimit()}
-        ");
-        $this->bind($statement);
-        if ($statement->execute() === false) {
-            throw new Exception('ciebit.persons.storages.database.get_error', 2);
-        }
-        $collection = new Collection;
-        $personsData = $statement->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($personsData as $personData) {
-            $person = $this->createPerson($personData);
-            $collection->add($person);
-        }
-        return $collection;
-    }
-    private function getFields(): string
-    {
-        return '
-            `persons`.`id`,
-            `persons`.`name`,
-            `persons`.`fantasy_name`,
-            `persons`.`birthdate`,
-            `persons`.`foundation_date`,
-            `persons`.`type`,
-            `persons`.`status`
-        ';
-    }
-    
-    public function getTotalRows(): int
-    {
-        return (int) $this->pdo->query('SELECT FOUND_ROWS()')->fetchColumn();
-    }
-    
-    public function setStartingLine(int $lineInit): Storage
-    {
-        parent::setOffset($lineInit);
         return $this;
     }
-    
-    public function setTable(string $name): Database
+
+    private function updateTotalItemsWithoutFilters(): self
     {
-        $this->table = $name;
-        return $this;
-    }
-    
-    public function setTotalLines(int $total): Storage
-    {
-        parent::setLimit($total);
+        $this->totalItemsOfLastFindWithoutLimitations = $this->pdo->query('SELECT FOUND_ROWS()')->fetchColumn();
         return $this;
     }
 }

@@ -1,16 +1,14 @@
---
--- Estrutura para tabela `cb_persons`
---
-
 CREATE TABLE `cb_persons` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET utf8 NOT NULL,
-  `fantasy_name` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `birthdate` datetime DEFAULT NULL,
-  `foundation_date` datetime DEFAULT NULL,
-  `type` enum('natural','legal') CHARACTER SET utf8 NOT NULL,
-  `status` tinyint(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
-
-ALTER TABLE `cb_persons`
-  ADD PRIMARY KEY (`id`);
+  `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `nickname` varchar(200) DEFAULT NULL,
+  `description` varchar(300) DEFAULT NULL,
+  `birth_date` datetime DEFAULT NULL,
+  `type` enum('natural','legal') NOT NULL,
+  `educational_level` tinyint(1) UNSIGNED DEFAULT NULL,
+  `gender` tinyint(1) UNSIGNED DEFAULT NULL,
+  `marital_status` tinyint(1) UNSIGNED DEFAULT NULL,
+  `slug` varchar(300) DEFAULT NULL,
+  `status` tinyint(1) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`)
+) COMMENT='version:1.0';

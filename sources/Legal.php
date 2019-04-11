@@ -6,7 +6,7 @@ use DateTime;
 
 class Legal extends Person
 {
-    private const TYPE = 'legal';
+    public const TYPE = 'legal';
 
     /** @var string */
     private $fantasyName;

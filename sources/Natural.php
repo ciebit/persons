@@ -10,7 +10,7 @@ use DateTime;
 class Natural extends Person
 {
     /** @var string */
-    private const TYPE = 'natural';
+    public const TYPE = 'natural';
 
     /** @var DateTime|null */
     private $birthDate;

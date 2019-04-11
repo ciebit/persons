@@ -1,10 +1,13 @@
 <?php
 namespace Ciebit\Persons\Storages\Database;
 
-use Ciebit\Persons\Person;
+use Ciebit\Persons\Characteristics\EducationalLevel;
+use Ciebit\Persons\Characteristics\Gender;
+use Ciebit\Persons\Characteristics\MaritalStatus;
+use Ciebit\Persons\Collection;
 use Ciebit\Persons\Legal;
 use Ciebit\Persons\Natural;
-use Ciebit\Persons\Collection;
+use Ciebit\Persons\Person;
 use Ciebit\Persons\Status;
 use Ciebit\Persons\Storages\Storage;
 use Ciebit\SqlHelper\Sql as SqlHelper;
@@ -137,27 +140,74 @@ class Sql implements Database
         return $this;
     }
 
-    public function createPerson(array $data): Person
+    /** @throws Exception */
+    public function create(array $data): Person
     {
-        if($data['type'] == 'legal') {
-            $person = (new Legal(
-                $data['name'] ?? '',
-                $data['slug'] ?? '',
-                new Status((int) $data['status'] ?? Status::INACTIVE)
-            ))
-            ->setId($data['id'] ?? '')
-            ->setFantasyName($data['nickname'] ?? '');
-            $data['birth_date'] && $person->setFoundationDate(new DateTime($data['birth_date']));
-
-            return $person;
+        switch ($data[self::COLUMN_TYPE]) {
+            case Legal::TYPE: return $this->createLegal($data);
+            case Natural::TYPE: return $this->createNatural($data);
         }
-        $person = (new Natural(
-            $data['name'] ?? '',
-            $data['slug'] ?? '',
-            new Status((int) $data['status'] ?? Status::INACTIVE)
-        ))
-        ->setId($data['id'] ?? '');
-        $data['birth_date'] && $person->setBirthDate(new DateTime($data['birth_date']));
+
+        throw new Exception('ciebit.persons.storages.database.unidentifiedType', 1);
+    }
+
+    private function createLegal(array $data): Legal
+    {
+        list(
+            $id, $name, $slug, $description,
+            $status, $fantasyName, $foundationDate
+        ) = [
+            (string) $data[self::COLUMN_ID],
+            (string) $data[self::COLUMN_NAME],
+            (string) $data[self::COLUMN_SLUG],
+            (string) $data[self::COLUMN_DESCRIPTION],
+            new Status((int) $data[self::COLUMN_STATUS]),
+            (string) $data[self::COLUMN_FANTASY_NAME],
+            (string) $data[self::COLUMN_FOUNDATION_DATE]
+        ];
+
+        $person = (new Legal($name, $slug, $status))
+        ->setDescription($description)
+        ->setFantasyName($fantasyName)
+        ->setId($id);
+
+        if ($foundationDate) {
+            $person->setFoundationDate(new DateTime($foundationDate));
+        }
+
+        return $person;
+    }
+
+    private function createNatural(array $data): Natural
+    {
+        list(
+            $id, $name, $slug, $status, $nickname, $description,
+            $birthDate, $educationalLevel, $gender, $maritalStatus
+        ) = [
+            (string) $data[self::COLUMN_ID],
+            (string) $data[self::COLUMN_NAME],
+            (string) $data[self::COLUMN_SLUG],
+            new Status((int) $data[self::COLUMN_STATUS]),
+            (string) $data[self::COLUMN_NICKNAME],
+            (string) $data[self::COLUMN_DESCRIPTION],
+            (string) $data[self::COLUMN_BIRTH_DATE],
+            (int) $data[self::COLUMN_EDUCATIONAL_LEVEL],
+            (int) $data[self::COLUMN_GENDER],
+            (int) $data[self::COLUMN_MARITAL_STATUS]
+        ];
+
+        $person = (new Natural($name, $slug, $status))
+        ->setId($id)
+        ->setNickname($nickname)
+        ->setDescription($description)
+        ->setEducationalLevel(new EducationalLevel($educationalLevel))
+        ->setGender(new Gender($gender))
+        ->setMaritalStatus(new MaritalStatus($maritalStatus))
+        ;
+
+        if ($birthDate) {
+            $person->setBirthDate(new DateTime($birthDate));
+        }
 
         return $person;
     }
@@ -195,7 +245,7 @@ class Sql implements Database
         $collection = new Collection;
         $personsData = $statement->fetchAll(PDO::FETCH_ASSOC);
         foreach ($personsData as $personData) {
-            $person = $this->createPerson($personData);
+            $person = $this->create($personData);
             $collection->add($person);
         }
 

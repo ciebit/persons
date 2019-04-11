@@ -28,6 +28,38 @@ class SqlTest extends Connection
         $this->assertInstanceOf(Legal::class, $person);
     }
 
+    public function testFindOneIntegrityLegal(): void
+    {
+        $database = $this->getDatabase();
+        $person = $database->addFilterById('=', '3')->findOne();
+        $this->assertInstanceOf(Legal::class, $person);
+        $this->assertEquals('3', $person->getId());
+        $this->assertEquals('C. A. Ferreira', $person->getName());
+        $this->assertEquals('Mundo Fitness', $person->getFantasyName());
+        $this->assertEquals('mundo-fitness', $person->getSlug());
+        $this->assertEquals('Empresa focada em produtos de fitness', $person->getDescription());
+        $this->assertEquals('2017-04-15', $person->getFoundationDate()->format('Y-m-d'));
+        $this->assertEquals(Legal::TYPE, $person->getType());
+    }
+
+    public function testFindOneIntegrityNatural(): void
+    {
+        $database = $this->getDatabase();
+        $person = $database->addFilterById('=', '5')->findOne();
+        $this->assertInstanceOf(Natural::class, $person);
+        $this->assertEquals('5', $person->getId());
+        $this->assertEquals('Angela Duarte Sousa', $person->getName());
+        $this->assertEquals('Angel', $person->getNickname());
+        $this->assertEquals('angela-duarte-sousa', $person->getSlug());
+        $this->assertEquals('Atendente', $person->getDescription());
+        $this->assertEquals('1986-12-05', $person->getBirthDate()->format('Y-m-d'));
+        $this->assertEquals(Natural::TYPE, $person->getType());
+        $this->assertEquals(4, $person->getEducationalLevel()->getValue());
+        $this->assertEquals(2, $person->getGender()->getValue());
+        $this->assertEquals(1, $person->getMaritalStatus()->getValue());
+        $this->assertEquals(4, $person->getStatus()->getValue());
+    }
+
     public function testFindAll(): void
     {
         $database = $this->getDatabase();

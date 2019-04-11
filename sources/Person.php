@@ -58,7 +58,7 @@ abstract class Person
 
     public function setDescription(string $description): self
     {
-        $this->descr = $description;
+        $this->description = $description;
         return $this;
     }
 

@@ -1,18 +1,37 @@
 <?php
 namespace Ciebit\Persons;
 
-use Ciebit\Persons\Enum\Status;
+use Ciebit\Persons\Status;
 
 abstract class Person
 {
-    private $id; #string
-    private $name; #string
-    private $status; #Status
+    /** @var string */
+    private $description;
 
-    public function __construct(string $name, Status $status)
+    /** @var string */
+    private $id;
+
+    /** @var string */
+    private $name;
+
+    /** @var string */
+    private $slug;
+
+    /** @var Status */
+    private $status;
+
+    public function __construct(string $name, string $slug, Status $status)
     {
+        $this->id = '';
+        $this->description = '';
         $this->name = $name;
+        $this->slug = $slug;
         $this->status = $status;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     public function getId(): string
@@ -25,26 +44,27 @@ abstract class Person
         return $this->name;
     }
 
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
     public function getStatus(): Status
     {
         return $this->status;
     }
 
+    abstract public function getType(): string;
+
+    public function setDescription(string $description): self
+    {
+        $this->descr = $description;
+        return $this;
+    }
+
     public function setId(string $id): self
     {
         $this->id = $id;
-        return $this;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    public function setStatus(Status $status): self
-    {
-        $this->status = $status;
         return $this;
     }
 }

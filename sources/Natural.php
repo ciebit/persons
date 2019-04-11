@@ -1,21 +1,42 @@
 <?php
 namespace Ciebit\Persons;
 
-use Ciebit\Persons\Enum\EducationalLevel;
-use Ciebit\Persons\Enum\Gender;
-use Ciebit\Persons\Enum\MaritalStatus;
+use Ciebit\Persons\Characteristics\EducationalLevel;
+use Ciebit\Persons\Characteristics\Gender;
+use Ciebit\Persons\Characteristics\MaritalStatus;
+use Ciebit\Persons\Status;
 use DateTime;
 
 class Natural extends Person
 {
-    private $birthDate; #DateTime
-    private $educationalLevel; #EducationalLevel
-    private $gender; #Gender
-    private $maritalStatus; #MaritalStatus
-    private $nickname; #string
+    /** @var string */
     private const TYPE = 'natural';
 
-    public function getBirthDate(): DateTime
+    /** @var DateTime|null */
+    private $birthDate;
+
+    /** @var EducationLevel */
+    private $educationalLevel;
+
+    /** @var Gender */
+    private $gender;
+
+    /** @var MaritalStatus */
+    private $maritalStatus;
+
+    /** @var string */
+    private $nickname;
+
+    public function __construct(string $name, string $slug, Status $status)
+    {
+        parent::__construct($name, $slug, $status);
+        $this->educationalLevel = EducationalLevel::UNDEFINED;
+        $this->gender = Gender::UNDEFINED;
+        $this->maritalStatus = MaritalStatus::UNDEFINED;
+        $this->nickname = '';
+    }
+
+    public function getBirthDate(): ?DateTime
     {
         return $this->birthDate;
     }

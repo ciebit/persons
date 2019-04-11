@@ -29,6 +29,9 @@ interface Storage
     public const FIELD_ID = 'id';
 
     /** @var string */
+    public const FIELD_IMAGE_ID = 'image_id';
+
+    /** @var string */
     public const FIELD_MARITAL_STATUS = 'marital_status';
 
     /** @var string */

@@ -49,6 +49,9 @@ class Sql implements Database
     private const COLUMN_ID = 'id';
 
     /** @var string */
+    private const COLUMN_IMAGE_ID = 'image_id';
+
+    /** @var string */
     private const COLUMN_MARITAL_STATUS = 'marital_status';
 
     /** @var string */
@@ -154,10 +157,11 @@ class Sql implements Database
     private function createLegal(array $data): Legal
     {
         list(
-            $id, $name, $slug, $description,
+            $id, $imageId, $name, $slug, $description,
             $status, $fantasyName, $foundationDate
         ) = [
             (string) $data[self::COLUMN_ID],
+            (string) $data[self::COLUMN_IMAGE_ID],
             (string) $data[self::COLUMN_NAME],
             (string) $data[self::COLUMN_SLUG],
             (string) $data[self::COLUMN_DESCRIPTION],
@@ -167,6 +171,7 @@ class Sql implements Database
         ];
 
         $person = (new Legal($name, $slug, $status))
+        ->setImageId($imageId)
         ->setDescription($description)
         ->setFantasyName($fantasyName)
         ->setId($id);
@@ -181,10 +186,11 @@ class Sql implements Database
     private function createNatural(array $data): Natural
     {
         list(
-            $id, $name, $slug, $status, $nickname, $description,
+            $id, $imageId, $name, $slug, $status, $nickname, $description,
             $birthDate, $educationalLevel, $gender, $maritalStatus
         ) = [
             (string) $data[self::COLUMN_ID],
+            (string) $data[self::COLUMN_IMAGE_ID],
             (string) $data[self::COLUMN_NAME],
             (string) $data[self::COLUMN_SLUG],
             new Status((int) $data[self::COLUMN_STATUS]),
@@ -198,6 +204,7 @@ class Sql implements Database
 
         $person = (new Natural($name, $slug, $status))
         ->setId($id)
+        ->setImageId($imageId)
         ->setNickname($nickname)
         ->setDescription($description)
         ->setEducationalLevel(new EducationalLevel($educationalLevel))
@@ -268,6 +275,7 @@ class Sql implements Database
     {
         return "
             `{$this->table}`.`". self::COLUMN_ID ."`,
+            `{$this->table}`.`". self::COLUMN_IMAGE_ID ."`,
             `{$this->table}`.`". self::COLUMN_BIRTH_DATE ."`,
             `{$this->table}`.`". self::COLUMN_DESCRIPTION ."`,
             `{$this->table}`.`". self::COLUMN_EDUCATIONAL_LEVEL ."`,

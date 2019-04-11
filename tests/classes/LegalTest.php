@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 class LegalTest extends TestCase
 {
     const ID = '1';
+    const IMAGE_ID = '11';
     const NAME = 'Francisco Peixoto Pereira LTDA';
     const SLUG = 'francisco-peixoto-pereira-ltda';
     const FANTASY_NAME = 'Brasil Modas';
@@ -26,11 +27,13 @@ class LegalTest extends TestCase
             new Status(self::STATUS)
         );
         $person->setId(self::ID);
+        $person->setImageId(self::IMAGE_ID);
         $person->setFoundationDate(new DateTime(self::FOUNDATION_DATE));
         $person->setFantasyName(self::FANTASY_NAME);
 
         $this->assertInstanceof(Legal::class, $person);
         $this->assertEquals(self::ID, $person->getId());
+        $this->assertEquals(self::IMAGE_ID, $person->getImageId());
         $this->assertEquals(self::NAME, $person->getName());
         $this->assertEquals(self::SLUG, $person->getSlug());
         $this->assertEquals(self::FANTASY_NAME, $person->getFantasyName());

@@ -12,6 +12,9 @@ abstract class Person
     private $id;
 
     /** @var string */
+    private $imageId;
+
+    /** @var string */
     private $name;
 
     /** @var string */
@@ -23,6 +26,7 @@ abstract class Person
     public function __construct(string $name, string $slug, Status $status)
     {
         $this->id = '';
+        $this->imageId = '';
         $this->description = '';
         $this->name = $name;
         $this->slug = $slug;
@@ -37,6 +41,11 @@ abstract class Person
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getImageId(): string
+    {
+        return $this->imageId;
     }
 
     public function getName(): string
@@ -65,6 +74,12 @@ abstract class Person
     public function setId(string $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function setImageId(string $id): self
+    {
+        $this->imageId = $id;
         return $this;
     }
 }

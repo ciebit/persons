@@ -1,5 +1,6 @@
 CREATE TABLE `cb_persons` (
   `id` int(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `image_id` int(10) UNSIGNED DEFAULT NULL,
   `name` varchar(200) NOT NULL,
   `nickname` varchar(200) DEFAULT NULL,
   `description` varchar(300) DEFAULT NULL,

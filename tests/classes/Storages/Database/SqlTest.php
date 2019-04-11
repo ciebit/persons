@@ -34,6 +34,7 @@ class SqlTest extends Connection
         $person = $database->addFilterById('=', '3')->findOne();
         $this->assertInstanceOf(Legal::class, $person);
         $this->assertEquals('3', $person->getId());
+        $this->assertEquals('33', $person->getImageId());
         $this->assertEquals('C. A. Ferreira', $person->getName());
         $this->assertEquals('Mundo Fitness', $person->getFantasyName());
         $this->assertEquals('mundo-fitness', $person->getSlug());
@@ -48,6 +49,7 @@ class SqlTest extends Connection
         $person = $database->addFilterById('=', '5')->findOne();
         $this->assertInstanceOf(Natural::class, $person);
         $this->assertEquals('5', $person->getId());
+        $this->assertEquals('55', $person->getImageId());
         $this->assertEquals('Angela Duarte Sousa', $person->getName());
         $this->assertEquals('Angel', $person->getNickname());
         $this->assertEquals('angela-duarte-sousa', $person->getSlug());

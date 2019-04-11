@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 class NaturalPersonsTest extends TestCase
 {
     const ID = '1';
+    const IMAGE_ID = '11';
     const NAME = 'Francisco Peixoto Pereira';
     const SLUG = 'francisco-peixoto-pereira';
     const NICKNAME = 'Cotó';
@@ -32,6 +33,7 @@ class NaturalPersonsTest extends TestCase
             new Status(self::STATUS)
         );
         $person->setId(self::ID);
+        $person->setImageId(self::IMAGE_ID);
         $person->setBirthDate(new DateTime(self::BIRTH_DATE));
         $person->setEducationalLevel(new EducationalLevel(self::EDUCATIONAL_LEVEL));
         $person->setGender(new Gender(self::GENDER));
@@ -40,6 +42,7 @@ class NaturalPersonsTest extends TestCase
 
         $this->assertInstanceof(Natural::class, $person);
         $this->assertEquals(self::ID, $person->getId());
+        $this->assertEquals(self::IMAGE_ID, $person->getImageId());
         $this->assertEquals(self::NAME, $person->getName());
         $this->assertEquals(self::SLUG, $person->getSlug());
         $this->assertEquals(self::NICKNAME, $person->getNickname());

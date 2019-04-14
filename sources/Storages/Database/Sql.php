@@ -83,6 +83,9 @@ class Sql implements Database
     /** @var string */
     private $tableLabelAssociation;
 
+    /** @var int */
+    private $totalItemsOfLastFindWithoutLimitations;
+
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
@@ -294,7 +297,7 @@ class Sql implements Database
 
     public function getTotalItemsOfLastFindWithoutLimitations(): int
     {
-        return $this->totalItemsLastQuery;
+        return $this->totalItemsOfLastFindWithoutLimitations;
     }
 
     private function save(Person $person): Storage

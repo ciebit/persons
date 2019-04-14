@@ -21,6 +21,17 @@ class SqlTest extends Connection
         return new DatabaseSql($pdo);
     }
 
+    public function testGetTotalItemsOfLastFindWithoutLimitations(): void
+    {
+        $database = $this->getDatabase();
+        $person = $database
+        ->setLimit(1)
+        ->findAll();
+
+        $this->assertCount(1, $person);
+        $this->assertEquals(6, $database->getTotalItemsOfLastFindWithoutLimitations());
+    }
+
     public function testFindOne(): void
     {
         $database = $this->getDatabase();

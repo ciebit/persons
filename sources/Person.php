@@ -2,8 +2,9 @@
 namespace Ciebit\Persons;
 
 use Ciebit\Persons\Status;
+use JsonSerializable;
 
-abstract class Person
+abstract class Person implements JsonSerializable
 {
     /** @var string */
     private $description;
@@ -23,11 +24,17 @@ abstract class Person
     /** @var Status */
     private $status;
 
-    public function __construct(string $name, string $slug, Status $status)
-    {
-        $this->id = '';
-        $this->imageId = '';
-        $this->description = '';
+    public function __construct(
+        string $name, 
+        string $slug, 
+        Status $status,
+        string $description, 
+        string $imageId, 
+        string $id = '' 
+    ) {
+        $this->id = $id;
+        $this->imageId = $imageId;
+        $this->description = $description;
         $this->name = $name;
         $this->slug = $slug;
         $this->status = $status;
@@ -65,21 +72,15 @@ abstract class Person
 
     abstract public function getType(): string;
 
-    public function setDescription(string $description): self
+    public function jsonSerialize(): array
     {
-        $this->description = $description;
-        return $this;
-    }
-
-    public function setId(string $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function setImageId(string $id): self
-    {
-        $this->imageId = $id;
-        return $this;
+        return [
+            'description' => $this->getDescription(),
+            'id' => $this->getId(),
+            'imageId' => $this->getImageId(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+            'status' => $this->getStatus()
+        ];
     }
 }

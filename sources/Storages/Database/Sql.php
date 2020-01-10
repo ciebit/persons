@@ -173,17 +173,16 @@ class Sql implements Database
             (string) $data[self::COLUMN_FOUNDATION_DATE]
         ];
 
-        $person = (new Legal($name, $slug, $status))
-        ->setImageId($imageId)
-        ->setDescription($description)
-        ->setFantasyName($fantasyName)
-        ->setId($id);
-
-        if ($foundationDate) {
-            $person->setFoundationDate(new DateTime($foundationDate));
-        }
-
-        return $person;
+        return new Legal(
+            $name, 
+            $slug, 
+            $status,
+            $description,
+            $imageId,
+            $id,
+            $fantasyName,
+            $foundationDate != null ? new DateTime($foundationDate) : null
+        );
     }
 
     private function createNatural(array $data): Natural
@@ -205,21 +204,19 @@ class Sql implements Database
             (int) $data[self::COLUMN_MARITAL_STATUS]
         ];
 
-        $person = (new Natural($name, $slug, $status))
-        ->setId($id)
-        ->setImageId($imageId)
-        ->setNickname($nickname)
-        ->setDescription($description)
-        ->setEducationalLevel(new EducationalLevel($educationalLevel))
-        ->setGender(new Gender($gender))
-        ->setMaritalStatus(new MaritalStatus($maritalStatus))
-        ;
-
-        if ($birthDate) {
-            $person->setBirthDate(new DateTime($birthDate));
-        }
-
-        return $person;
+        return new Natural(
+            $name, 
+            $slug, 
+            $status,
+            $description,
+            $imageId,
+            $id,
+            $birthDate != null ? new DateTime($birthDate) : null,
+            new EducationalLevel($educationalLevel),
+            new Gender($gender),
+            new MaritalStatus($maritalStatus),
+            $nickname
+        );
     }
 
     private function destroy(Person $person): Storage
@@ -341,7 +338,7 @@ class Sql implements Database
                 VALUES (:id, :name, :birthdate, :type, :status)
             ");
             $statement->bindValue(':birthdate', $person->getBirthDate()->format('Y-m-d'), PDO::PARAM_STR);
-        } else {
+        } elseif($person instanceof Legal) {
             $statement = $this->pdo->prepare("
                 INSERT INTO {$this->table} (`id`, `name`, `fantasy_name`, `foundation_date`, `type`, `status`)
                 VALUES (:id, :name, :fantasy_name, :foundation_date, :type, :status)
@@ -372,7 +369,7 @@ class Sql implements Database
                 WHERE id = :id;
             ");
             $statement->bindValue(':birthdate', $person->getBirthDate()->format('Y-m-d'), PDO::PARAM_STR);
-        } else {
+        } elseif($person instanceof Legal) {
             $statement = $this->pdo->prepare("
                 UPDATE {$this->table}
                 SET

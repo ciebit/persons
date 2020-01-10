@@ -5,10 +5,12 @@ use ArrayIterator;
 use ArrayObject;
 use Countable;
 use IteratorAggregate;
+use JsonSerializable;
 
-class Collection implements Countable, IteratorAggregate
+class Collection implements Countable, IteratorAggregate, JsonSerializable
 {
-    private $persons; #:ArrayObject
+    /** @var ArrayObject */
+    private $persons;
 
     public function __construct()
     {
@@ -19,6 +21,11 @@ class Collection implements Countable, IteratorAggregate
     {
         $this->persons->append($person);
         return $this;
+    }
+
+    public function count(): int
+    {
+        return $this->persons->count();
     }
 
     public function getArrayObject(): ArrayObject
@@ -41,8 +48,8 @@ class Collection implements Countable, IteratorAggregate
         return $this->persons->getIterator();
     }
 
-    public function count(): int
+    public function jsonSerialize(): array
     {
-        return $this->persons->count();
+        return $this->getArrayObject()->getArrayCopy();
     }
 }

@@ -15,7 +15,7 @@ class Natural extends Person
     /** @var DateTime|null */
     private $birthDate;
 
-    /** @var EducationLevel */
+    /** @var EducationalLevel */
     private $educationalLevel;
 
     /** @var Gender */
@@ -27,13 +27,32 @@ class Natural extends Person
     /** @var string */
     private $nickname;
 
-    public function __construct(string $name, string $slug, Status $status)
-    {
-        parent::__construct($name, $slug, $status);
-        $this->educationalLevel = EducationalLevel::UNDEFINED;
-        $this->gender = Gender::UNDEFINED;
-        $this->maritalStatus = MaritalStatus::UNDEFINED;
-        $this->nickname = '';
+    public function __construct(
+        string $name, 
+        string $slug, 
+        Status $status,
+        string $description = '',
+        string $imageId = '',
+        string $id = '',
+        DateTime $birthDate = null,
+        EducationalLevel $educationalLevel,
+        Gender $gender,
+        MaritalStatus $maritalStatus,
+        string $nickname
+    ) {
+        parent::__construct(
+            $name,
+            $slug,
+            $status,
+            $description,
+            $imageId,
+            $id
+        );
+        $this->birthDate = $birthDate;
+        $this->educationalLevel = $educationalLevel;
+        $this->gender = $gender;
+        $this->maritalStatus = $maritalStatus;
+        $this->nickname = $nickname;
     }
 
     public function getBirthDate(): ?DateTime
@@ -66,33 +85,20 @@ class Natural extends Person
         return self::TYPE;
     }
 
-    public function setBirthDate(DateTime $birthDate): self
+    public function jsonSerialize(): array
     {
-        $this->birthDate = $birthDate;
-        return $this;
-    }
-
-    public function setEducationalLevel(EducationalLevel $educationalLevel): self
-    {
-        $this->educationalLevel = $educationalLevel;
-        return $this;
-    }
-
-    public function setGender(Gender $gender): self
-    {
-        $this->gender = $gender;
-        return $this;
-    }
-
-    public function setMaritalStatus(MaritalStatus $maritalStatus): self
-    {
-        $this->maritalStatus = $maritalStatus;
-        return $this;
-    }
-
-    public function setNickname(string $nickname): self
-    {
-        $this->nickname = $nickname;
-        return $this;
+        return array_merge(
+            parent::jsonSerialize(),
+            [
+                'birthDate' => $this->getBirthDate() != null 
+                    ? $this->getBirthDate()->format('Y-m-d')
+                    : null,
+                'educationalLevel' => $this->getEducationalLevel(),
+                'gender' => $this->getGender(),
+                'maritalStatus' => $this->getMaritalStatus(),
+                'nickname' => $this->getNickname(),
+                'type' => $this->getType(),
+            ]
+        );
     }
 }
